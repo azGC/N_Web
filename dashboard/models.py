@@ -13,3 +13,5 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('username','password')
 
 admin.site.register(User,UserAdmin)
+
+# 创建用户 python manage.py createsuperuser

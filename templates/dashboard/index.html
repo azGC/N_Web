@@ -41,6 +41,9 @@
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span> Case <i class="fa fa-bars"></i>
+            </button>
             <a href="/">
             <img src="{% static 'img/Nielsen.png' %}" height="50" width="50" >
             </a>
@@ -53,7 +56,7 @@
             <ul class="nav navbar-nav navbar-right ml-auto">
 
                 <li class="dropdown">
-                    <a class="nav-link js-scroll-trigger active" data-toggle="dropdown" href="#" >
+                    <a class="nav-link js-scroll-trigger active" data-toggle="dropdown" href="#" style="color:#999999" >
                         Business Case
                         <i class="fa fa-fw fa-caret-down"></i>
                     </a>
@@ -63,7 +66,6 @@
                         <li><a href="auto_page.html" style="color:#999999">User Portrait <br> 用户画像</a></li>
                     </ul>
                 </li>
-
             </ul>
         </div>
         <!-- /.navbar-collapse -->

@@ -52,7 +52,7 @@ def index(request):
 # car dashboard page
 @login_required
 def carOwnerChartPage(request):
-    return render(request, 'dashboard/carEchartPage.html')
+    return render(request, 'dashboard/shareEchartPage.html')
 
 # get car page data
 # @login_required

@@ -107,7 +107,7 @@
             <script type="text/javascript">
             <!--提前添加select model-->
             function select_model(){
-                $.getJSON('{% url 'carEchartPage' %}',{'a':'model_list'}, function(ret){
+                $.getJSON('{% url 'shareEchartPage' %}',{'a':'model_list'}, function(ret){
                     var selDom = $("#select_model");
                     <!--默认选中前6项目-->
                     for(var i = 0; i <5; i++){
@@ -129,7 +129,7 @@
                 var array1 = [citytier,price]
                 var json_array1 = JSON.stringify("全国");
                 <!--Brand Share数据-->
-                $.getJSON('{% url 'carEchartPage' %}',{'a':json_array1}, function(ret){
+                $.getJSON('{% url 'shareEchartPage' %}',{'a':json_array1}, function(ret){
                     drawbrand(ret.page_1_brand);
                     drawnational(ret.page_1_national);
                     drawStacked(ret.page_1_top);
@@ -141,7 +141,7 @@
                 <!--Model数据 为提升加载速度手动设置初始加载数据-->
                 var array2 = [citytier, 'price_model', '1米 M4-C, 360 F4s, 360 F5, 360 N6, 360 N6 Lite ']
                 var json_array2 = JSON.stringify(array2);
-                $.getJSON('{% url 'carEchartPage' %}',{'a':json_array2}, function(ret){
+                $.getJSON('{% url 'shareEchartPage' %}',{'a':json_array2}, function(ret){
                     drawmodel(ret);
                 });
 
@@ -154,7 +154,7 @@
                     console.log(json_array1)
 
                     <!--Brand Share数据-->
-                    $.getJSON('{% url 'carEchartPage' %}',{'a':json_array1}, function(ret){
+                    $.getJSON('{% url 'shareEchartPage' %}',{'a':json_array1}, function(ret){
                         drawbrand(ret.page_1_brand);
                         drawnational(ret.page_1_national);
                         drawNewModel(ret.page_1_new);
@@ -164,7 +164,7 @@
                     var model_ = $("[data-id=select_model]").text();
                     var array2 = [citytier, 'price_model', model_]
                     var json_array2 = JSON.stringify(array2);
-                    $.getJSON('{% url 'carEchartPage' %}',{'a':json_array2}, function(ret){
+                    $.getJSON('{% url 'shareEchartPage' %}',{'a':json_array2}, function(ret){
                         drawmodel(ret);
                     });
                 });
@@ -176,7 +176,7 @@
                     var array1 = [citytier,price]
                     var json_array1 = JSON.stringify(array1);
                     console.log(json_array1)
-                    $.getJSON('{% url 'carEchartPage' %}',{'a':json_array1}, function(ret){
+                    $.getJSON('{% url 'shareEchartPage' %}',{'a':json_array1}, function(ret){
                         drawbrand(ret.page_1_brand);
                         });
                 });
@@ -187,7 +187,7 @@
                     var model_ = $("[data-id=select_model]").text();
                     var array2 = [citytier, 'price_model', model_]
                     var json_array2 = JSON.stringify(array2);
-                    $.getJSON('{% url 'carEchartPage' %}',{'a':json_array2}, function(ret_){
+                    $.getJSON('{% url 'shareEchartPage' %}',{'a':json_array2}, function(ret_){
                         drawmodel(ret_);
                     });
                 });

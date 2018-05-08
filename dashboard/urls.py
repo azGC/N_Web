@@ -11,8 +11,8 @@ urlpatterns = [
     # url(r'^logout', my_logout, name='my_logout'),
 
     # car dashboard page
-    url(r'^auto_page', carOwnerChartPage, name='carEchart'),
-    url(r'^auto/$', carOwnerChart, name='carEchartPage'),
+    url(r'^share_page', carOwnerChartPage, name='shareEchart'),
+    url(r'^share/$', carOwnerChart, name='shareEchartPage'),
 
 ]
 

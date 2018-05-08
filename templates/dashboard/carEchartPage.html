@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Big data </title>
+    <!-- echart-->
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+    <script type="text/javascript"
+            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+    <script type="text/javascript"
+            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+    <!-- Bootstrap -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap/css/bootstrap-select.css' %}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="{% static 'vendor/nprogress/nprogress.css' %}" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="{% static 'vendor/iCheck/skins/flat/green.css' %}" rel="stylesheet">
+    <!-- bootstrap-progressbar -->
+    <link href="{% static 'vendor/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css' %}" rel="stylesheet">
+    <!-- Custom Theme Style -->
+    <link href="{% static 'polygon/custom.min.css' %}" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript">
+    <!--下拉框-->
+         $(window).on('load', function () {
+         $('.selectpicker').selectpicker({
+                        'selectedText': 'cat'
+                    });
+           // $('.selectpicker').selectpicker('hide');
+                });
+
+    </script>
+</head>
+
+<body class="nav-md">
+
+<div class="container body">
+    <div class="main_container">
+        <div class="col-md-3 left_col">
+            <div class="left_col scroll-view">
+                <div class="navbar nav_title" style="border: 0;">
+                    <a href="/" class="site_title">
+                        <!--侧栏顶部图标-->
+                        <!--<i class="fa fa-paw"></i> -->
+                        <span>Back Home</span></a>
+                </div>
+                <!-- menu profile quick info -->
+                <div class="profile clearfix">
+                </div>
+                <!-- /menu profile quick info -->
+                <br/>
+                <!-- sidebar menu -->
+                <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                    <div class="menu_section">
+                        <!--<h3>Case</h3>-->
+                        <ul class="nav side-menu">
+                            <!--侧栏菜单-->
+                            <li><a><i class="fa fa-bar-chart-o"></i> Business Case <span
+                                    class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                    <li><a href="auto_page.html">Market Share Detection <br>市场份额检测</a></li>
+                                    <li><a href="auto_page.html">User Change Detection <br> 用户换机检测</a></li>
+                                    <li><a href="auto_page.html">User Portrait <br> 用户画像</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /sidebar menu -->
+            </div>
+        </div>
+
+        <!-- top navigation -->
+        <div class="top_nav " align="right">
+            <!-- 上边栏-->
+            <div class="nav_menu ">
+
+                <!--左上角缩小按钮-->
+                <div class="nav toggle ">
+                    <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                </div>
+                <img src="{% static 'img/Nielsen.png' %}" height="50" width="50">
+            </div>
+            <!--/右上角用户栏-->
+        </div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+
+
+            <!--接收数据库返回信息-->
+            <script type="text/javascript">
+            <!--提前添加select model-->
+            function select_model(){
+                $.getJSON('{% url 'carEchartPage' %}',{'a':'model_list'}, function(ret){
+                    var selDom = $("#select_model");
+                    <!--默认选中前6项目-->
+                    for(var i = 0; i <5; i++){
+                        var d = "<option name='chkId' selected='selected' value="+ret[i]+">"+ret[i]+"</option>"
+                        selDom.append(d);//添加option
+                    }
+                    for (var i = 5; i <ret.length; i++){
+                        var d = "<option name='chkId' value="+ret[i]+">"+ret[i]+"</option>"
+                        selDom.append(d);//添加option
+                    }
+                })
+            }
+            select_model()
+
+            $(document).ready(function(){
+                <!--页面初始化加载图表-->
+                var citytier = $("#citytier").val();
+                var price = $("#price").val();
+                var array1 = [citytier,price]
+                var json_array1 = JSON.stringify("全国");
+                <!--Brand Share数据-->
+                $.getJSON('{% url 'carEchartPage' %}',{'a':json_array1}, function(ret){
+                    drawbrand(ret.page_1_brand);
+                    drawnational(ret.page_1_national);
+                    drawStacked(ret.page_1_top);
+                    drawNewModel(ret.page_1_new);
+                    drawBezelL(ret.page_1_BezelL);
+                    drawAI(ret.page_1_AI);
+                    drawFace(ret.page_1_Face);
+                });
+                <!--Model数据 为提升加载速度手动设置初始加载数据-->
+                var array2 = [citytier, 'price_model', '1米 M4-C, 360 F4s, 360 F5, 360 N6, 360 N6 Lite ']
+                var json_array2 = JSON.stringify(array2);
+                $.getJSON('{% url 'carEchartPage' %}',{'a':json_array2}, function(ret){
+                    drawmodel(ret);
+                });
+
+                <!--城市等级选择更改-->
+                $("#citytier").change(function(){
+                    var citytier = $("#citytier").val();
+                    var price = $("#price").val();
+                    var array1 = [citytier,price]
+                    var json_array1 = JSON.stringify(array1);
+                    console.log(json_array1)
+
+                    <!--Brand Share数据-->
+                    $.getJSON('{% url 'carEchartPage' %}',{'a':json_array1}, function(ret){
+                        drawbrand(ret.page_1_brand);
+                        drawnational(ret.page_1_national);
+                        drawNewModel(ret.page_1_new);
+                    });
+
+                    <!--Model Share数据-->
+                    var model_ = $("[data-id=select_model]").text();
+                    var array2 = [citytier, 'price_model', model_]
+                    var json_array2 = JSON.stringify(array2);
+                    $.getJSON('{% url 'carEchartPage' %}',{'a':json_array2}, function(ret){
+                        drawmodel(ret);
+                    });
+                });
+
+                <!--价格段选择更改-->
+                $("#price").change(function(){
+                    var citytier = $("#citytier").val();
+                    var price = $("#price").val();
+                    var array1 = [citytier,price]
+                    var json_array1 = JSON.stringify(array1);
+                    console.log(json_array1)
+                    $.getJSON('{% url 'carEchartPage' %}',{'a':json_array1}, function(ret){
+                        drawbrand(ret.page_1_brand);
+                        });
+                });
+
+                <!--机型名选择更改-->
+                $("#begin").click(function(){
+                    var citytier = $("#citytier").val();
+                    var model_ = $("[data-id=select_model]").text();
+                    var array2 = [citytier, 'price_model', model_]
+                    var json_array2 = JSON.stringify(array2);
+                    $.getJSON('{% url 'carEchartPage' %}',{'a':json_array2}, function(ret_){
+                        drawmodel(ret_);
+                    });
+                });
+            });
+
+            </script>
+            <!--/接收数据库返回信息-->
+
+
+            <!-- 图表行-->
+            <div class="row">
+                <!-- 市场份额 -->
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_panel">
+                            <h3>Market Share/市场份额</h3>
+                        </div>
+                    </div>
+                </div>
+                <!--select tiles-->
+                <div class="col-lg-13 ">
+                    <form method="get">
+                        <div class="form-group ">
+                            <select class="form-control" id="citytier">
+                                <option selected="selected">全国</option>
+                                <option>一线</option>
+                                <option>二线</option>
+                                <option>三线</option>
+                                <option>四线</option>
+                            </select>
+                        </div>
+
+                    </form>
+                </div>
+                <!-- /select tiles-->
+
+                <!-- 品牌与机型份额行-->
+                <div class="row">
+                    <!-- 品牌份额图框-->
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="x_panel">
+                            <!-- 标题-->
+                            <div class="col-md-6">
+                                <h2>Brand Market Share<br>品牌份额</h2>
+                            </div>
+                            <br><br><br><br>
+                            <form method="get">
+                                <div class="form-group">
+                                    <select id="price" class="selectpicker bla bla bli" multiple
+                                            data-live-search="true">
+                                        <option selected="selected"><1500</option>
+                                        <option selected="selected">1500-2500</option>
+                                        <option selected="selected">2500-3500</option>
+                                        <option selected="selected">>3500</option>
+                                    </select>
+                                </div>
+                            </form>
+
+                            <!-- 价格段选择按钮 -->
+
+                            <!--/价格段选择按钮 -->
+
+                            <!--/标题-->
+                            <!-- chart_brand-->
+                            <div id="line_1_brand" style="width: 100%;height:300%;">
+                                <script type="text/javascript">
+
+                                function drawbrand(test_list){
+                                var dom = document.getElementById("container");
+                                var drawbrand = echarts.init(document.getElementById('line_1_brand'));
+                                var app = {};
+                                option = null;
+
+                                <!--为实现动态进行得分赋值-->
+                                var x_list=[]=test_list[11];
+                                <!--图例-->
+                                var sxAxis=[]=test_list[10];
+                                var one_=[]=test_list[0];
+                                var two_ =[]=test_list[1];
+                                var three_=[]=test_list[2];
+                                var four_=[]=test_list[3];
+                                var five_=[]=test_list[4];
+                                var six_=[]=test_list[5];
+                                var seven_=[]=test_list[6];
+                                var eight_=[]=test_list[7];
+                                var nine_=[]=test_list[8];
+                                var ten_=[]=test_list[9];
+
+                                var posList = [
+                                    'left', 'right', 'top', 'bottom',
+                                    'inside',
+                                    'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                                    'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                                ];
+
+                                app.configParameters = {
+                                    rotate: {
+                                        min: -90,
+                                        max: 90
+                                    },
+                                    align: {
+                                        options: {
+                                            left: 'left',
+                                            center: 'center',
+                                            right: 'right'
+                                        }
+                                    },
+                                    verticalAlign: {
+                                        options: {
+                                            top: 'top',
+                                            middle: 'middle',
+                                            bottom: 'bottom'
+                                        }
+                                    },
+                                    position: {
+                                        options: echarts.util.reduce(posList, function (map, pos) {
+                                            map[pos] = pos;
+                                            return map;
+                                        }, {})
+                                    },
+                                    distance: {
+                                        min: 0,
+                                        max: 100
+                                    }
+                                };
+
+                                app.config = {
+                                    rotate: 90,
+                                    align: 'left',
+                                    verticalAlign: 'middle',
+                                    position: 'insideBottom',
+                                    distance: 15,
+                                    onChange: function () {
+                                        var labelOption = {
+                                            normal: {
+                                                rotate: app.config.rotate,
+                                                align: app.config.align,
+                                                verticalAlign: app.config.verticalAlign,
+                                                position: app.config.position,
+                                                distance: app.config.distance
+                                            }
+                                        };
+                                        drawbrand.setOption({
+                                            series: [{
+                                                label: labelOption
+                                            }, {
+                                                label: labelOption
+                                            }, {
+                                                label: labelOption
+                                            }, {
+                                                label: labelOption
+                                            }]
+                                        });
+                                    }
+                                };
+
+
+                                var labelOption = {
+                                    normal: {
+                                        show: false,
+                                        position: app.config.position,
+                                        distance: app.config.distance,
+                                        align: app.config.align,
+                                        verticalAlign: app.config.verticalAlign,
+                                        rotate: app.config.rotate,
+                                        formatter: '{c}  {name|{a}}',
+                                        fontSize: 16,
+                                        rich: {
+                                            name: {
+                                                textBorderColor: '#fff'
+                                            }
+                                        }
+                                    }
+                                };
+
+                                option = {
+                                    color: ['#003366', '#006699', '#4cabce', '#e5323e', '#319ae5', '#e5c131', '#ad96b5', '#0c5259'],
+                                    tooltip: {
+                                        trigger: 'axis',
+                                        axisPointer: {
+                                            type: 'shadow'
+                                        }
+                                    },
+                                    legend: {
+                                        <!--图例-->
+                                        data: [
+                                            sxAxis[0],
+                                            sxAxis[1],
+                                            sxAxis[2],
+                                            sxAxis[3],
+                                            sxAxis[4],
+                                            sxAxis[5],
+                                            sxAxis[6],
+                                            sxAxis[7],
+                                            sxAxis[8],
+                                            sxAxis[9],
+                                            sxAxis[10]
+                                        ],
+                                    },
+                                    toolbox: {
+                                        show: true,
+                                        orient: 'vertical',
+                                        left: 'right',
+                                        top: 'center',
+                                        feature: {
+                                            mark: {show: true},
+                                            dataView: {show: true, readOnly: false},
+                                            magicType: {show: true, type: ['line', 'bar']},
+                                            restore: {show: true},
+                                            saveAsImage: {show: true}
+                                        }
+                                    },
+                                    calculable: true,
+                                    xAxis: [
+                                        {
+                                            type: 'category',
+                                            axisTick: {show: false},
+                                            data: x_list,
+                                            axisLabel:{
+                                              rotate:-20, //刻度旋转45度角
+                                              interval:0
+
+                                            }
+                                        }
+                                    ],
+                                    yAxis: [
+                                        {
+                                            type: 'value',
+                                            axisLabel: {
+                                                  show: true,
+                                                  interval: 'auto',
+                                                  formatter: '{value} %'
+                                                },
+                                            <!--min: 0,-->
+                                            <!--max: 1-->
+                                        }
+                                    ],
+
+
+                                    series: [
+                                        {
+                                            name: sxAxis[0],
+                                            type: 'line',
+                                            barGap: 0,
+                                            label: {formatter:'{value}%'},
+                                            data: one_
+                                        },
+                                        {
+                                            name: sxAxis[1],
+                                            type: 'line',
+                                            label: {formatter:'{value}%'},
+                                            data: two_
+                                        },
+                                        {
+                                            name: sxAxis[2],
+                                            type: 'line',
+                                            label: {formatter:'{value}%'},
+                                            data: three_
+                                        },
+                                        {
+                                            name: sxAxis[3],
+                                            type: 'line',
+                                            label: {formatter:'{value}%'},
+                                            data: four_
+                                        },
+                                        {
+                                            name: sxAxis[4],
+                                            type: 'line',
+                                            label: {formatter:'{value}%'},
+                                            data: five_
+                                        },
+                                        {
+                                            name: sxAxis[5],
+                                            type: 'line',
+                                            label:{formatter:'{value}%'},
+                                            data: six_
+                                        },
+                                        {
+                                            name: sxAxis[6],
+                                            type: 'line',
+                                            label: {formatter:'{value}%'},
+                                            data: seven_
+                                        },
+                                        {
+                                            name: sxAxis[7],
+                                            type: 'line',
+                                            label: {formatter:'{value}%'},
+                                            data: eight_
+                                        },
+                                        {
+                                            name: sxAxis[8],
+                                            type: 'line',
+                                            label: {formatter:'{value}%'},
+                                            data: nine_
+                                        },
+                                        {
+                                            name: sxAxis[9],
+                                            type: 'line',
+                                            label: {formatter:'{value}%'},
+                                            data: ten_
+                                        }
+                                    ]
+                                };
+
+                                drawbrand.setOption(option, true);
+                                }
+
+
+
+                                </script>
+                            </div>
+                            <!--/chart_lv1-->
+                        </div>
+                    </div>
+                    <!--/品牌份额图框-->
+
+                    <!-- 机型份额图框-->
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="x_panel">
+                            <!-- 标题-->
+                            <div class="col-md-6">
+                                <h2>Model Market Share<br>机型份额</h2>
+                            </div>
+                            <br><br><br><br>
+                            <!--按钮框-->
+                            <form method="get">
+                                <div class="form-group">
+                                    <!-- 机型选择按钮 -->
+                                    <select id="select_model" class="selectpicker bla bla bli" multiple
+                                            data-live-search="false">
+
+                                    </select>
+                                    <!--/机型选择按钮 -->
+                                    <button type="button" id="begin">查找</button>
+                                </div>
+                            </form>
+                            <!--/按钮框-->
+
+                            <!--/标题-->
+                            <!-- chart_model-->
+                            <div id="line_1_model" style="width: 100%;height:300%;">
+                                <script type="text/javascript">
+
+                                function drawmodel(test_list){
+                                var dom = document.getElementById("container");
+                                var drawmodel = echarts.init(document.getElementById('line_1_model'));
+                                var app = {};
+                                option = null;
+
+                                <!--数据-->
+                                var data_ = [] = test_list[0]
+
+                                var posList = [
+                                    'left', 'right', 'top', 'bottom',
+                                    'inside',
+                                    'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                                    'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                                ];
+
+                                app.configParameters = {
+                                    rotate: {
+                                        min: -90,
+                                        max: 90
+                                    },
+                                    align: {
+                                        options: {
+                                            left: 'left',
+                                            center: 'center',
+                                            right: 'right'
+                                        }
+                                    },
+                                    verticalAlign: {
+                                        options: {
+                                            top: 'top',
+                                            middle: 'middle',
+                                            bottom: 'bottom'
+                                        }
+                                    },
+                                    position: {
+                                        options: echarts.util.reduce(posList, function (map, pos) {
+                                            map[pos] = pos;
+                                            return map;
+                                        }, {})
+                                    },
+                                    distance: {
+                                        min: 0,
+                                        max: 100
+                                    }
+                                };
+
+                                app.config = {
+                                    rotate: 90,
+                                    align: 'left',
+                                    verticalAlign: 'middle',
+                                    position: 'insideBottom',
+                                    distance: 15,
+
+                                };
+
+
+                                var labelOption = {
+                                    normal: {
+                                        show: false,
+                                        position: app.config.position,
+                                        distance: app.config.distance,
+                                        align: app.config.align,
+                                        verticalAlign: app.config.verticalAlign,
+                                        rotate: app.config.rotate,
+                                        formatter: '{c}  {name|{a}}',
+                                        fontSize: 16,
+                                        rich: {
+                                            name: {
+                                                textBorderColor: '#fff'
+                                            }
+                                        }
+                                    }
+                                };
+
+                                option = {
+                                    color: ['#003366', '#006699', '#4cabce', '#e5323e', '#319ae5', '#e5c131', '#ad96b5', '#0c5259'],
+                                    tooltip: {
+                                        trigger: 'axis',
+                                        axisPointer: {
+                                            type: 'shadow'
+                                        }
+                                    },
+                                    legend: {
+                                        <!--图例-->
+                                        data:test_list[1]
+
+                                    },
+                                    toolbox: {
+                                        show: true,
+                                        orient: 'vertical',
+                                        left: 'right',
+                                        top: 'center',
+                                        feature: {
+                                            mark: {show: true},
+                                            dataView: {show: true, readOnly: false},
+                                            magicType: {show: true, type: ['line', 'bar']},
+                                            restore: {show: true},
+                                            saveAsImage: {show: true}
+                                        }
+                                    },
+                                    calculable: true,
+                                    xAxis: [
+                                        {
+                                            type: 'category',
+                                            axisTick: {show: false},
+                                            data: test_list[2],
+                                    axisLabel:{
+                                              rotate:-20, //刻度旋转45度角
+                                              interval:0
+                                            }
+                                        }
+                                    ],
+                                    yAxis: [
+                                        {
+                                            type: 'value',
+                                            axisLabel: {
+                                                  show: true,
+                                                  interval: 'auto',
+                                                   formatter: '{value} %'
+                                                },
+
+                                        }
+                                    ],
+
+                                    series:data_
+                                };
+
+
+                                drawmodel.setOption(option, true);
+
+
+                                }
+
+
+
+                                </script>
+                            </div>
+                            <!--/chart_lv1-->
+                        </div>
+                    </div>
+                    <!--/机型份额图框-->
+                </div>
+                <!--/品牌与机型份额行-->
+
+                <!-- 机型排名行-->
+                <div class="row">
+                    <!-- purpose 图框 -->
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_panel">
+                            <div class="col-md-6">
+                                <h2>National of The Top 15 Models<br>全国存量占比排名前15机型</h2>
+                            </div>
+                            <div id="line_2_purpose" style="width: 100%;height:400%;">
+                                <script type="text/javascript">
+                                function drawStacked(test_list){
+                                var dom = document.getElementById("container");
+                                var drawStacked = echarts.init(document.getElementById('line_2_purpose'));
+                                var app = {};
+
+                                option = {
+                                    title : {
+                                        text: '',
+                                        subtext: ''
+                                    },
+                                    tooltip : {
+                                        trigger: 'axis'
+                                    },
+                                    legend: {
+                                        data:['2018年1月', '2018年2月'],
+
+                                    },
+                                    toolbox: {
+                                        show : true,
+                                        feature : {
+                                            dataView : {show: true, readOnly: false},
+                                            saveAsImage : {show: true}
+                                        }
+                                    },
+                                    calculable : true,
+                                    xAxis : [
+                                        {
+
+                                            type : 'category',
+                                            data : test_list[0],
+                                            <!--data : [test_list[1][0],test_list[2][0],test_list[3][0],test_list[4][0],test_list[5][0],test_list[6][0],test_list[7][0],test_list[8][0],test_list[9][0],test_list[10][0]],-->
+                                            axisLabel:{
+                                              rotate:-20, //刻度旋转45度角
+                                              interval:0
+                                            }
+
+                                        }
+                                    ],
+                                    yAxis : [
+                                        {
+                                            type : 'value'
+                                        }
+                                    ],
+                                    series : [
+                                        {
+                                            name:'2018年2月',
+                                            type:'bar',
+                                            data:test_list[1],
+                                            markPoint : {
+                                                data : [
+                                                    {type : 'max', name: '最大值'},
+                                                    {type : 'min', name: '最小值'}
+                                                ]
+                                            },
+                                            itemStyle:{
+                                                 normal:{
+                                                   color:'rgb(18,39,105)'
+                                                   }
+                                            },
+
+                                        },
+                                        {
+                                            name:'2018年1月',
+                                            type:'bar',
+                                            data:test_list[2],
+                                            markPoint : {
+                                                data : [
+                                                    {type : 'max', name: '最大值'},
+                                                    {type : 'min', name: '最小值'}
+                                                ]
+                                            },
+
+                                        }
+                                    ]
+                                };
+
+                                    drawStacked.setOption(option, true);
+
+                                }
+
+
+
+                                </script>
+                            </div>
+                            <!--/chart_purpose-->
+                        </div>
+                    </div>
+                    <!--/purpose 图框 -->
+                </div>
+                <!--/机型排名行 -->
+
+                <!-- 价格段全国占比+新机份额行 -->
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="x_panel">
+                            <!-- 标题-->
+                            <div class="col-md-6">
+                                <h2>Price Segment Share<br>价格段份额</h2>
+                            </div>
+                            <!-- 价格段选择按钮 -->
+
+                            <!--/价格段选择按钮 -->
+
+                            <!--/标题-->
+                            <!-- chart_brand-->
+                            <div id="line_2_National" style="width: 100%;height:300%;">
+                                <script type="text/javascript">
+
+                                function drawnational(test_list){
+                                var dom = document.getElementById("container");
+                                var drawbrand = echarts.init(document.getElementById('line_2_National'));
+                                option = {
+
+
+                                tooltip: {
+                                    trigger: 'axis',
+                                    axisPointer: {
+                                        type: 'line',
+                                        lineStyle: {
+                                            color: 'rgba(0,0,0,0.2)',
+                                            width: 1,
+                                            type: 'solid'
+                                        }
+                                    }
+                                },
+                                toolbox: {
+                                    feature: {
+                                        <!--dataView: {readOnly: false},-->
+                                        saveAsImage: {}
+                                    }
+                                },
+
+                                legend: {
+                                    data: []
+                                },
+
+                                singleAxis: {
+                                    top: 50,
+                                    bottom: 50,
+                                    axisTick: {},
+                                    axisLabel: {},
+                                    type: 'time',
+                                    axisPointer: {
+                                        animation: true,
+                                        label: {
+                                            show: true
+                                        }
+                                    },
+                                    splitLine: {
+                                        show: true,
+                                        lineStyle: {
+                                            type: 'dashed',
+                                            opacity: 0.2
+                                        }
+                                    }
+                                },
+
+
+                                series: [
+                                    {
+                                        type: 'themeRiver',
+                                        itemStyle: {
+                                            emphasis: {
+                                                shadowBlur: 20,
+                                                shadowColor: 'rgba(0, 0, 0, 0.8)'
+                                            }
+                                        },
+                                        data: test_list[0]
+                                    }
+                                ]
+                            };
+
+                                drawbrand.setOption(option, true);
+                                }
+
+
+
+                                </script>
+                            </div>
+                            <!--/chart_lv1-->
+                        </div>
+                    </div>
+                    <!--/价格段全国占比行 -->
+
+                    <!-- 新机全国占比行 -->
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="x_panel">
+                            <!-- 标题-->
+                            <div class="col-md-6">
+                                <h2>New Model Share<br>新机份额</h2>
+                            </div>
+
+                            <!--/标题-->
+                            <!-- chart_new model-->
+                            <div id="line_3_NewModel" style="width: 100%;height:300%;">
+                                <script type="text/javascript">
+
+                                function drawNewModel(test_list){
+                                var dom = document.getElementById("container");
+                                var drawmodel = echarts.init(document.getElementById('line_3_NewModel'));
+                                var app = {};
+                                option = null;
+
+                                var posList = [
+                                    'left', 'right', 'top', 'bottom',
+                                    'inside',
+                                    'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                                    'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                                ];
+
+                                app.configParameters = {
+                                    rotate: {
+                                        min: -90,
+                                        max: 90
+                                    },
+                                    align: {
+                                        options: {
+                                            left: 'left',
+                                            center: 'center',
+                                            right: 'right'
+                                        }
+                                    },
+                                    verticalAlign: {
+                                        options: {
+                                            top: 'top',
+                                            middle: 'middle',
+                                            bottom: 'bottom'
+                                        }
+                                    },
+                                    position: {
+                                        options: echarts.util.reduce(posList, function (map, pos) {
+                                            map[pos] = pos;
+                                            return map;
+                                        }, {})
+                                    },
+                                    distance: {
+                                        min: 0,
+                                        max: 100
+                                    }
+                                };
+
+                                app.config = {
+                                    rotate: 90,
+                                    align: 'left',
+                                    verticalAlign: 'middle',
+                                    position: 'insideBottom',
+                                    distance: 15,
+
+                                };
+
+                                var labelOption = {
+                                    normal: {
+                                        show: false,
+                                        position: app.config.position,
+                                        distance: app.config.distance,
+                                        align: app.config.align,
+                                        verticalAlign: app.config.verticalAlign,
+                                        rotate: app.config.rotate,
+                                        formatter: '{c}  {name|{a}}',
+                                        fontSize: 16,
+                                        rich: {
+                                            name: {
+                                                textBorderColor: '#fff'
+                                            }
+                                        }
+                                    }
+                                };
+
+                                option = {
+                                    color: ['#003366', '#006699', '#4cabce', '#e5323e', '#319ae5', '#e5c131', '#ad96b5', '#0c5259'],
+                                    tooltip: {
+                                        trigger: 'axis',
+                                        axisPointer: {
+                                            type: 'shadow'
+                                        }
+                                    },
+                                    legend: {
+                                        <!--图例-->
+                                        data:test_list[0]
+
+                                    },
+                                    toolbox: {
+                                        show: true,
+                                        orient: 'vertical',
+                                        left: 'right',
+                                        top: 'center',
+                                        feature: {
+                                            <!--mark: {show: true},-->
+                                            dataView: {show: true, readOnly: false},
+                                            <!--magicType: {show: true, type: ['line', 'bar']},-->
+                                            <!--restore: {show: true},-->
+                                            saveAsImage: {show: true}
+                                        }
+                                    },
+                                    calculable: true,
+                                    xAxis: [
+                                        {
+                                            type: 'category',
+                                            axisTick: {show: false},
+                                            data: test_list[0],
+                                        }
+                                    ],
+                                    yAxis: [
+                                        {
+                                            type: 'value',
+                                            axisLabel: {
+                                                  show: true,
+                                                  interval: 'auto',
+                                                   formatter: '{value} %'
+                                                },
+
+                                        }
+                                    ],
+
+                                    series: [
+                                        {
+                                            <!--name:'直接访问',-->
+                                            type:'bar',
+                                            barWidth: '10%',
+                                            data:test_list[1]
+                                        }
+                                    ]
+                                };
+                                drawmodel.setOption(option, true);
+                                }
+
+
+
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--/新机全国占比+新机份额行 -->
+
+                <!-- 科技趋势行-->
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_panel">
+                            <h3>Trend of Technology/科技趋势</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <!-- 全面屏-->
+                    <div class="col-md-4 col-sm-4 col-xs-12">
+                        <div class="x_panel">
+                            <div class="col-md-6">
+                                <h2>Trend of Bezel Less<br>全面屏趋势</h2>
+                            </div>
+                            <div id="line_4_BezelL" style="width: 100%;height:300%;">
+                                <script type="text/javascript">
+
+                                function drawBezelL(test_list){
+                                var dom = document.getElementById("container");
+                                var drawmodel = echarts.init(document.getElementById('line_4_BezelL'));
+                                var app = {};
+                                option = null;
+
+                                var posList = [
+                                    'left', 'right', 'top', 'bottom',
+                                    'inside',
+                                    'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                                    'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                                ];
+
+                                app.configParameters = {
+                                    rotate: {
+                                        min: -90,
+                                        max: 90
+                                    },
+                                    align: {
+                                        options: {
+                                            left: 'left',
+                                            center: 'center',
+                                            right: 'right'
+                                        }
+                                    },
+                                    verticalAlign: {
+                                        options: {
+                                            top: 'top',
+                                            middle: 'middle',
+                                            bottom: 'bottom'
+                                        }
+                                    },
+                                    position: {
+                                        options: echarts.util.reduce(posList, function (map, pos) {
+                                            map[pos] = pos;
+                                            return map;
+                                        }, {})
+                                    },
+                                    distance: {
+                                        min: 0,
+                                        max: 100
+                                    }
+                                };
+
+                                app.config = {
+                                    rotate: 90,
+                                    align: 'left',
+                                    verticalAlign: 'middle',
+                                    position: 'insideBottom',
+                                    distance: 15,
+
+                                };
+
+                                var labelOption = {
+                                    normal: {
+                                        show: false,
+                                        position: app.config.position,
+                                        distance: app.config.distance,
+                                        align: app.config.align,
+                                        verticalAlign: app.config.verticalAlign,
+                                        rotate: app.config.rotate,
+                                        formatter: '{c}  {name|{a}}',
+                                        fontSize: 16,
+                                        rich: {
+                                            name: {
+                                                textBorderColor: '#fff'
+                                            }
+                                        }
+                                    }
+                                };
+
+                                option = {
+                                    color: ['#003366', '#006699', '#4cabce', '#e5323e', '#319ae5', '#e5c131', '#ad96b5', '#0c5259'],
+                                    tooltip: {
+                                        trigger: 'axis',
+                                        axisPointer: {
+                                            type: 'shadow'
+                                        }
+                                    },
+                                    legend: {
+                                        <!--图例-->
+                                        data:test_list[0]
+
+                                    },
+                                    toolbox: {
+                                        show: true,
+                                        orient: 'vertical',
+                                        left: 'right',
+                                        top: 'center',
+                                        feature: {
+                                            dataView: {show: true, readOnly: false},
+                                            saveAsImage: {show: true}
+                                        }
+                                    },
+                                    calculable: true,
+                                    xAxis: [
+                                        {
+                                            type: 'category',
+                                            axisTick: {show: false},
+                                            data: test_list[1],
+                                            axisLabel:{
+                                              rotate:-20, //刻度旋转45度角
+                                              interval:0
+                                            }
+                                        }
+                                    ],
+                                    yAxis: [
+                                        {
+                                            type: 'value',
+                                            axisLabel: {
+                                                  show: true,
+                                                  interval: 'auto',
+                                                   formatter: '{value} %'
+                                                },
+
+                                        }
+                                    ],
+
+                                    series: [
+                                        {
+                                            type:'line',
+                                            data:test_list[0]
+                                        }
+                                    ]
+                                };
+                                drawmodel.setOption(option, true);
+                                }
+
+
+
+                                </script>
+                            </div>
+                            <!--/chart_purpose-->
+                        </div>
+                    </div>
+                    <!--/全面屏-->
+                    <!-- AI-->
+                    <div class="col-md-4 col-sm-4 col-xs-12">
+                        <div class="x_panel">
+                            <div class="col-md-6">
+                                <h2>Trend of AI<br>AI趋势</h2>
+                            </div>
+                            <div id="line_4_AI" style="width: 100%;height:300%;">
+                                <script type="text/javascript">
+
+                                function drawAI(test_list){
+                                var dom = document.getElementById("container");
+                                var drawmodel = echarts.init(document.getElementById('line_4_AI'));
+                                var app = {};
+                                option = null;
+
+                                var posList = [
+                                    'left', 'right', 'top', 'bottom',
+                                    'inside',
+                                    'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                                    'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                                ];
+
+                                app.configParameters = {
+                                    rotate: {
+                                        min: -90,
+                                        max: 90
+                                    },
+                                    align: {
+                                        options: {
+                                            left: 'left',
+                                            center: 'center',
+                                            right: 'right'
+                                        }
+                                    },
+                                    verticalAlign: {
+                                        options: {
+                                            top: 'top',
+                                            middle: 'middle',
+                                            bottom: 'bottom'
+                                        }
+                                    },
+                                    position: {
+                                        options: echarts.util.reduce(posList, function (map, pos) {
+                                            map[pos] = pos;
+                                            return map;
+                                        }, {})
+                                    },
+                                    distance: {
+                                        min: 0,
+                                        max: 100
+                                    }
+                                };
+
+                                app.config = {
+                                    rotate: 90,
+                                    align: 'left',
+                                    verticalAlign: 'middle',
+                                    position: 'insideBottom',
+                                    distance: 15,
+
+                                };
+
+                                var labelOption = {
+                                    normal: {
+                                        show: false,
+                                        position: app.config.position,
+                                        distance: app.config.distance,
+                                        align: app.config.align,
+                                        verticalAlign: app.config.verticalAlign,
+                                        rotate: app.config.rotate,
+                                        formatter: '{c}  {name|{a}}',
+                                        fontSize: 16,
+                                        rich: {
+                                            name: {
+                                                textBorderColor: '#fff'
+                                            }
+                                        }
+                                    }
+                                };
+
+                                option = {
+                                    color: ['#003366', '#006699', '#4cabce', '#e5323e', '#319ae5', '#e5c131', '#ad96b5', '#0c5259'],
+                                    tooltip: {
+                                        trigger: 'axis',
+                                        axisPointer: {
+                                            type: 'shadow'
+                                        }
+                                    },
+                                    legend: {
+                                        <!--图例-->
+                                        data:test_list[0]
+
+                                    },
+                                    toolbox: {
+                                        show: true,
+                                        orient: 'vertical',
+                                        left: 'right',
+                                        top: 'center',
+                                        feature: {
+                                            dataView: {show: true, readOnly: false},
+                                            saveAsImage: {show: true}
+                                        }
+                                    },
+                                    calculable: true,
+                                    xAxis: [
+                                        {
+                                            type: 'category',
+                                            axisTick: {show: false},
+                                            data: test_list[1],
+                                            axisLabel:{
+                                              rotate:-20, //刻度旋转45度角
+                                              interval:0
+                                            }
+                                        }
+                                    ],
+                                    yAxis: [
+                                        {
+                                            type: 'value',
+                                            axisLabel: {
+                                                  show: true,
+                                                  interval: 'auto',
+                                                   formatter: '{value} %'
+                                                },
+
+                                        }
+                                    ],
+
+                                    series: [
+                                        {
+                                            type:'line',
+                                            data:test_list[0]
+                                        }
+                                    ]
+                                };
+                                drawmodel.setOption(option, true);
+                                }
+
+
+
+                                </script>
+                            </div>
+                            <!--/chart_purpose-->
+                        </div>
+                    </div>
+                    <!--/AI-->
+                    <!-- 人脸识别-->
+                    <div class="col-md-4 col-sm-4 col-xs-12">
+                        <div class="x_panel">
+                            <div class="col-md-6">
+                                <h2>Trend of Face ID<br>人脸识别趋势</h2>
+                            </div>
+                            <div id="line_4_face" style="width: 100%;height:300%;">
+                                <script type="text/javascript">
+
+                                function drawFace(test_list){
+                                var dom = document.getElementById("container");
+                                var drawmodel = echarts.init(document.getElementById('line_4_face'));
+                                var app = {};
+                                option = null;
+
+                                var posList = [
+                                    'left', 'right', 'top', 'bottom',
+                                    'inside',
+                                    'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                                    'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                                ];
+
+                                app.configParameters = {
+                                    rotate: {
+                                        min: -90,
+                                        max: 90
+                                    },
+                                    align: {
+                                        options: {
+                                            left: 'left',
+                                            center: 'center',
+                                            right: 'right'
+                                        }
+                                    },
+                                    verticalAlign: {
+                                        options: {
+                                            top: 'top',
+                                            middle: 'middle',
+                                            bottom: 'bottom'
+                                        }
+                                    },
+                                    position: {
+                                        options: echarts.util.reduce(posList, function (map, pos) {
+                                            map[pos] = pos;
+                                            return map;
+                                        }, {})
+                                    },
+                                    distance: {
+                                        min: 0,
+                                        max: 100
+                                    }
+                                };
+
+                                app.config = {
+                                    rotate: 90,
+                                    align: 'left',
+                                    verticalAlign: 'middle',
+                                    position: 'insideBottom',
+                                    distance: 15,
+
+                                };
+
+                                var labelOption = {
+                                    normal: {
+                                        show: false,
+                                        position: app.config.position,
+                                        distance: app.config.distance,
+                                        align: app.config.align,
+                                        verticalAlign: app.config.verticalAlign,
+                                        rotate: app.config.rotate,
+                                        formatter: '{c}  {name|{a}}',
+                                        fontSize: 16,
+                                        rich: {
+                                            name: {
+                                                textBorderColor: '#fff'
+                                            }
+                                        }
+                                    }
+                                };
+
+                                option = {
+                                    color: ['#003366', '#006699', '#4cabce', '#e5323e', '#319ae5', '#e5c131', '#ad96b5', '#0c5259'],
+                                    tooltip: {
+                                        trigger: 'axis',
+                                        axisPointer: {
+                                            type: 'shadow'
+                                        }
+                                    },
+                                    legend: {
+                                        <!--图例-->
+                                        data:test_list[0]
+
+                                    },
+                                    toolbox: {
+                                        show: true,
+                                        orient: 'vertical',
+                                        left: 'right',
+                                        top: 'center',
+                                        feature: {
+                                            dataView: {show: true, readOnly: false},
+                                            saveAsImage: {show: true}
+                                        }
+                                    },
+                                    calculable: true,
+                                    xAxis: [
+                                        {
+                                            type: 'category',
+                                            axisTick: {show: false},
+                                            data: test_list[1],
+                                            axisLabel:{
+                                              rotate:-20, //刻度旋转45度角
+                                              interval:0
+                                            }
+                                        }
+                                    ],
+                                    yAxis: [
+                                        {
+                                            type: 'value',
+                                            axisLabel: {
+                                                  show: true,
+                                                  interval: 'auto',
+                                                   formatter: '{value} %'
+                                                },
+
+                                        }
+                                    ],
+
+                                    series: [
+                                        {
+                                            type:'line',
+                                            data:test_list[0]
+                                        }
+                                    ]
+                                };
+                                drawmodel.setOption(option, true);
+                                }
+
+
+
+                                </script>
+                            </div>
+                            <!--/chart_purpose-->
+                        </div>
+                    </div>
+                    <!--/人脸识别-->
+                </div>
+                <!--/科技趋势行-->
+            </div>
+            <!--/图表行 -->
+
+
+        </div>
+    </div>
+</div>
+
+
+<!-- footer content  -->
+<footer>
+    <div class="pull-right">
+        Big Data - <a href="/">Home</a>
+    </div>
+    <div class="clearfix"></div>
+</footer>
+<!-- /footer content -->
+
+
+<!-- jQuery -->
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap-select.js' %}"></script>
+<!-- FastClick -->
+<script src="{% static 'vendor/fastclick/lib/fastclick.js' %}"></script>
+<!-- NProgress -->
+<script src="{% static 'vendor/nprogress/nprogress.js' %}"></script>
+<!-- bootstrap-progressbar -->
+<script src="{% static 'vendor/bootstrap-progressbar/bootstrap-progressbar.min.js' %}"></script>
+<!-- iCheck -->
+<script src="{% static 'vendor/icheck/icheck.min.js' %}"></script>
+<!-- Skycons -->
+<script src="{% static 'vendor/skycons/skycons.js' %}"></script>
+<!-- JQVMap -->
+<script src="{% static 'vendor/jqvmap/dist/jquery.vmap.js' %}"></script>
+<script src="{% static 'vendor/jqvmap/dist/maps/jquery.vmap.world.js' %}"></script>
+<script src="{% static 'vendor/jqvmap/examples/js/jquery.vmap.sampledata.js' %}"></script>
+<!-- Custom Theme Scripts -->
+<script src="{% static 'polygon/custom.min.js' %}"></script>
+
+</body>
+</html>

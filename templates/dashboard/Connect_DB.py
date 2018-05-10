@@ -143,8 +143,9 @@ def getTop():
 
     result = []
     result.append(name)
-    result.append(this_month)
     result.append(last_month)
+    result.append(this_month)
+    # result.append(['2018年1月', '2018年2月'])
 
     return result
 # getTop()

@@ -202,7 +202,6 @@ def getNational(target):
             aim_data.append(result_2[len(result_2) - 1][price_])
             aim_data_list.append(aim_data)
     # 价格段排序
-    result = []
     order_1 = []
     order_2 = []
     order_3 = []
